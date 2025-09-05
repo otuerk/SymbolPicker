@@ -32,41 +32,36 @@ public class Symbols: Sendable {
     private let allSymbols: [Symbol]
 
     private init() {
-        let filename = if #available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *) {
-            "sfsymbol6"
-        } else if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *) {
-            "sfsymbol5"
-        } else {
-            "sfsymbol4"
-        }
-        self.allSymbols = Self.fetchSymbolsWithCategories(fileName: filename)
+        self.allSymbols = Self.fetchSymbolsWithCategories()
         self.symbols = self.allSymbols
     }
 
-    private static func fetchSymbols(fileName: String) -> [String] {
-        guard let path = Bundle.module.path(forResource: fileName, ofType: "txt"),
-              let content = try? String(contentsOfFile: path) else {
-            #if DEBUG
-            assertionFailure("[SymbolPicker] Failed to load bundle resource file.")
-            #endif
-            return []
+    private static func fetchSymbols() -> [String] {
+        if let bundle = Bundle(identifier: "com.apple.CoreGlyphs"),
+           let resourcePath = bundle.path(forResource: "name_availability", ofType: "plist"),
+           let plist = NSDictionary(contentsOfFile: resourcePath),
+           let plistSymbols = plist["symbols"] as? [String: String]
+        {
+          let symbols = Array(plistSymbols.keys)
+            
+            return symbols
         }
-        return content
-            .split(separator: "\n")
-            .map { String($0) }
+        
+        return []
     }
     
-    private static func fetchSymbolsWithCategories(fileName: String) -> [Symbol] {
-        guard let path = Bundle.module.path(forResource: fileName, ofType: "txt"),
-              let content = try? String(contentsOfFile: path) else {
-            #if DEBUG
-            assertionFailure("[SymbolPicker] Failed to load bundle resource file.")
-            #endif
-            return []
+    private static func fetchSymbolsWithCategories() -> [Symbol] {
+        if let bundle = Bundle(identifier: "com.apple.CoreGlyphs"),
+           let resourcePath = bundle.path(forResource: "name_availability", ofType: "plist"),
+           let plist = NSDictionary(contentsOfFile: resourcePath),
+           let plistSymbols = plist["symbols"] as? [String: String]
+        {
+          let symbols = Array(plistSymbols.keys)
+            
+            return symbols.map({ Symbol($0) })
         }
-        return content
-            .split(separator: "\n")
-            .map { Symbol(String($0)) }
+        
+        return []
     }
 }
 
