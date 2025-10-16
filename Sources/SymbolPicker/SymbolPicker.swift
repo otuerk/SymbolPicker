@@ -314,7 +314,7 @@ public struct SymbolPicker: View {
     }
 
     private var canDeleteIcon: Bool {
-        nullable && symbol != nil
+        false
     }
 
     private var symbols: [Symbol] {
